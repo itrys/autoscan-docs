@@ -1,1 +1,1 @@
-# -autoscan-docs
+# autoscan-docs
