@@ -1,0 +1,30 @@
+# AutoScan
+
+## 项目简介
+
+AutoScan 是一个轻量级的 Spring Boot Starter，专门解决企业级 Spring Boot 开发中跨包扫描的痛点问题。在传统的 Spring Boot 项目中，技术基础设施和业务基础设施的包结构往往是固定的（例如 `org.itrys.boot`、`org.itrys.base`），而业务项目通常使用公司自己的域包（例如 `com.company.project`）。这导致传统的 `@ComponentScan` 机制无法同时扫描基础设施包和业务包。
+
+**AutoScan** 通过实现 `ApplicationContextInitializer` 接口，在 Spring 容器启动的早期阶段自动扫描配置的基础包，完美解决了这一痛点。
+
+## 核心优势
+
+- **自动基础包扫描** - 在基础设施项目中配置一次，对所有依赖项目生效
+- **业务包零配置** - 利用 `@SpringBootApplication` 的默认扫描机制
+- **多层基础设施支持** - 业务项目也可以作为其他项目的基础设施
+- **非侵入式设计** - 不改变现有代码结构
+- **开发者友好** - 提供详细的扫描日志便于调试
+- **轻量级** - 无额外依赖，与 Spring Boot 完美兼容
+
+## 适用场景
+
+- **技术基础设施项目** - 为所有业务项目提供核心框架能力
+- **业务基础设施项目** - 基于技术基础设施，封装通用业务能力
+- **常规业务项目** - 基于技术/业务基础设施开发具体业务
+
+## 快速链接
+
+- [快速开始](quickstart.md)
+- [配置指南](configuration.md)
+- [使用场景](use-cases.md)
+- [架构设计](architecture.md)
+- [常见问题](faq.md)
