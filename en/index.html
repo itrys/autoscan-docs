@@ -25,9 +25,9 @@
 <body>
   <div id="app"></div>
   
-  <!-- Load version configuration and request interception -->
+  <!-- 加载版本配置和请求拦截 -->
   <script>
-    // Dynamically create script tag to load version.js, add timestamp to prevent caching
+    // 动态创建 script 标签加载 version.js，添加时间戳防止缓存
     const script = document.createElement('script');
     script.src = 'version.js?v=' + Date.now();
     document.body.appendChild(script);

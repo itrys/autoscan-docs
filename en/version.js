@@ -1,20 +1,20 @@
 // ========================================
-// Document Version Control Configuration
+// 文档版本控制配置
 // ========================================
-// Version: Update when releasing a new version (e.g., 1.1.0 → 1.2.0)
+// 版本号：发布新版本时更新（如 1.1.0 → 1.2.0）
 const DOC_VERSION = '1.1.0';
 
-// Timestamp: Update within the same version for frequent updates (Format: YYYYMMDDHHmm)
-// Example: 202603260852 means March 26, 2026, 08:52
-// Modify this timestamp after each document update
+// 时间戳：同一版本内频繁更新时修改（格式：YYYYMMDDHHmm）
+// 示例：202603260852 表示 2026年3月26日08:52
+// 每次更新文档后，修改此时间戳即可
 const DOC_TIMESTAMP = '202603260852';
 
-// Combined version parameter: version_timestamp (no need to modify)
+// 组合版本参数：版本号_时间戳（无需修改）
 const DOC_CACHE_KEY = DOC_VERSION + '_' + DOC_TIMESTAMP;
-// Result example: 1.1.0_202603260852
+// 结果示例：1.1.0_202603260852
 // ========================================
 
-// Rewrite XMLHttpRequest to add version parameter for MD files
+// 重写 XMLHttpRequest，为 MD 文件添加版本号参数
 const originalOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function(method, url) {
   let modifiedUrl = url;
@@ -23,12 +23,12 @@ XMLHttpRequest.prototype.open = function(method, url) {
     modifiedUrl = url + separator + 'v=' + DOC_CACHE_KEY;
     console.log('[AutoScan Docs] XHR with version:', modifiedUrl);
   }
-  // Use arguments to pass all parameters, avoid parameter loss
+  // 使用 arguments 传递所有参数，避免参数丢失
   arguments[1] = modifiedUrl;
   return originalOpen.apply(this, arguments);
 };
 
-// Rewrite fetch to add version parameter for MD files
+// 重写 fetch，为 MD 文件添加版本号参数
 if (window.fetch) {
   const originalFetch = window.fetch;
   window.fetch = function(input, init) {
