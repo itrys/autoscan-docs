@@ -8,7 +8,7 @@
 <dependency>
     <groupId>org.itrys</groupId>
     <artifactId>autoscan-spring-boot-starter</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -62,6 +62,53 @@ auto-scan:
   dev-mode: true
 ```
 
+### @Import 兼容性（v1.2.0+）
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 直接导入配置类
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+  dev-mode: true
+```
+
+### 懒加载初始化（v1.2.0+）
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 全局懒加载
+  lazy-initialization: true
+  # 包级懒加载
+  lazy-packages:
+    - org.example.service
+  # 类级懒加载
+  lazy-classes:
+    - org.example.controller.UserController
+  dev-mode: true
+```
+
+### 启用开关（v1.2.0+）
+
+```yaml
+# 启用 AutoScan（默认）
+auto-scan:
+  enabled: true
+  base-packages:
+    - org.example
+  dev-mode: true
+
+# 禁用 AutoScan
+auto-scan:
+  enabled: false
+  base-packages:
+    - org.example  # 即使配置了包，也不会进行扫描
+```
+
 ## 3. 启动应用
 
 ```java
@@ -97,15 +144,15 @@ public class ProjectApplication {
 
 如果一切正常，您的应用应该能够同时使用来自基础包和业务包的组件。
 
-## 5. 从 v1.0.0 迁移
+## 5. 从 v1.1.0 迁移
 
-v1.1.0 完全向后兼容 v1.0.0，只需更新版本号：
+v1.2.0 完全向后兼容 v1.1.0，只需更新版本号：
 
 ```xml
 <dependency>
     <groupId>org.itrys</groupId>
     <artifactId>autoscan-spring-boot-starter</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -160,6 +207,44 @@ auto-scan:
     - org.example
   include-annotations:
     - org.example.annotation.CustomComponent
+```
+
+### @Import 兼容性（v1.2.0+）
+
+```yaml
+auto-scan:
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+```
+
+### 懒加载初始化（v1.2.0+）
+
+```yaml
+auto-scan:
+  # 全局懒加载
+  lazy-initialization: true
+  # 包级懒加载
+  lazy-packages:
+    - org.example.service
+    - org.example.repository
+  # 类级懒加载
+  lazy-classes:
+    - org.example.controller.UserController
+    - org.example.service.OrderService
+```
+
+### 启用开关（v1.2.0+）
+
+```yaml
+# 启用 AutoScan
+auto-scan:
+  enabled: true
+
+# 禁用 AutoScan
+auto-scan:
+  enabled: false
 ```
 
 ## 7. 常见问题

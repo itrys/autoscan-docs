@@ -178,7 +178,16 @@ auto-scan:
 
 ## Q15: 如何在 Spring Boot 应用中禁用 AutoScan？
 
-**A**: 如果您需要暂时禁用 AutoScan，可以在配置文件中设置：
+**A**: 从 v1.2.0 版本开始，AutoScan 提供了专门的启用开关：
+
+```yaml
+auto-scan:
+  enabled: false  # 禁用 AutoScan
+  base-packages:
+    - org.example  # 即使配置了包，也不会进行扫描
+```
+
+在 v1.1.0 及之前版本，您可以使用以下方式：
 
 ```yaml
 auto-scan:
@@ -190,10 +199,6 @@ auto-scan:
 ## Q16: AutoScan 的未来规划是什么？
 
 **A**: AutoScan 的未来规划包括：
-
-**v1.2.0 计划**：
-- 📦 @Import 兼容性 - 在配置中直接导入特定类
-- ⚡ 懒加载初始化 - 支持懒加载 Bean 初始化
 
 **v1.3.0 计划**：
 - 🎯 高级过滤 - 基于正则表达式的包过滤
@@ -272,3 +277,59 @@ auto-scan:
 ```
 
 这种组合配置可以实现非常灵活和精确的扫描控制。
+
+## Q19: 如何使用 @Import 兼容性功能？
+
+**A**: 从 v1.2.0 版本开始，AutoScan 支持 @Import 兼容性功能，您可以在配置中直接导入特定类：
+
+```yaml
+auto-scan:
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+```
+
+这与在代码中使用 `@Import` 注解的效果相同，但更加灵活，无需修改代码。
+
+## Q20: 如何使用懒加载初始化功能？
+
+**A**: 从 v1.2.0 版本开始，AutoScan 支持懒加载初始化功能，您可以通过以下方式配置：
+
+**全局懒加载**：
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # 对所有扫描的 Bean 启用懒加载
+```
+
+**包级懒加载**：
+
+```yaml
+auto-scan:
+  lazy-packages:
+    - org.example.service  # 对特定包的 Bean 启用懒加载
+    - org.example.repository
+```
+
+**类级懒加载**：
+
+```yaml
+auto-scan:
+  lazy-classes:
+    - org.example.controller.UserController  # 对特定类启用懒加载
+    - org.example.service.OrderService
+```
+
+您也可以组合使用这些配置：
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # 全局懒加载
+  lazy-packages:
+    - org.example.service  # 额外指定包级懒加载
+  lazy-classes:
+    - org.example.controller.UserController  # 额外指定类级懒加载
+```
+
+懒加载可以提高应用启动性能和减少内存使用，特别是对于大型应用。

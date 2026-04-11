@@ -162,6 +162,141 @@ auto-scan:
 - 排除控制扫描范围
 - 自定义注解扩展能力
 
+## 场景 8：使用 @Import 兼容性功能（v1.2.0+）
+
+**定位**：在配置中直接导入特定类，无需修改代码
+
+**配置**：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 直接导入特定配置类
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+  dev-mode: true
+```
+
+**说明**：@Import 兼容性功能允许您在配置文件中直接导入特定类，这与在代码中使用 `@Import` 注解的效果相同，但更加灵活，无需修改代码。
+
+**适用场景**：
+- 导入第三方库的配置类
+- 导入特定的业务配置
+- 动态控制配置类的加载
+- 避免修改现有代码结构
+
+## 场景 9：使用懒加载初始化功能（v1.2.0+）
+
+**定位**：优化应用启动性能和内存使用
+
+**配置**：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 全局懒加载
+  lazy-initialization: true
+  # 包级懒加载
+  lazy-packages:
+    - org.example.service
+    - org.example.repository
+  # 类级懒加载
+  lazy-classes:
+    - org.example.controller.UserController
+  dev-mode: true
+```
+
+**说明**：懒加载初始化功能允许 Bean 在首次使用时才初始化，而不是在应用启动时就全部初始化，这可以显著提高应用启动性能和减少内存使用。
+
+**适用场景**：
+- 大型应用，启动时间较长
+- 内存资源有限的环境
+- 包含大量不常用组件的应用
+- 对启动时间有严格要求的场景
+
+## 场景 10：使用启用开关控制 AutoScan（v1.2.0+）
+
+**定位**：完全控制 AutoScan 的启用或禁用
+
+**配置**：
+
+```yaml
+# 启用 AutoScan
+auto-scan:
+  enabled: true
+  base-packages:
+    - org.example
+
+# 禁用 AutoScan
+auto-scan:
+  enabled: false
+  base-packages:
+    - org.example  # 即使配置了包，也不会进行扫描
+```
+
+**说明**：启用开关功能允许您完全控制 AutoScan 的启用或禁用，这在某些场景下非常有用，例如在测试环境中临时禁用 AutoScan。
+
+**适用场景**：
+- 测试环境中临时禁用 AutoScan
+- 多环境配置，根据环境决定是否启用
+- 调试和排查问题时控制 AutoScan 的行为
+- 与其他扫描机制配合使用时的灵活控制
+
+## 场景 11：组合使用 v1.2.0 新特性
+
+**定位**：充分利用 v1.2.0 的所有新特性
+
+**配置**：
+
+```yaml
+auto-scan:
+  # 启用开关
+  enabled: true
+  
+  # 通配符支持
+  base-packages:
+    - org.example.*
+    - com.company.**
+  
+  # 排除支持
+  exclude-packages:
+    - org.example.test
+  exclude-classes:
+    - org.example.demo.DemoClass
+  
+  # 自定义注解支持
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.example.annotation.CustomComponent
+  
+  # @Import 兼容性
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+  
+  # 懒加载初始化
+  lazy-initialization: true
+  lazy-packages:
+    - org.example.service
+  lazy-classes:
+    - org.example.controller.UserController
+  
+  # 开发模式
+  dev-mode: true
+```
+
+**说明**：v1.2.0 的新特性可以与 v1.1.0 的特性灵活组合使用，实现更加灵活和强大的扫描控制。
+
+**优势**：
+- 启用开关提供完全控制
+- @Import 兼容性增强配置灵活性
+- 懒加载初始化优化性能
+- 与现有特性完美集成
+
 ## 多层基础设施架构
 
 AutoScan 支持多层基础设施架构，例如：
@@ -332,27 +467,46 @@ auto-scan:
 - 配置所有需要被扫描的包
 - 考虑使用通配符简化配置（v1.1.0+）
 - 排除测试和示例代码（v1.1.0+）
+- 使用 @Import 兼容性导入特定配置类（v1.2.0+）
 
 ### 2. 业务项目
 
 - 只配置基础设施包
 - 利用 `@SpringBootApplication` 的默认扫描
 - 使用排除功能控制扫描范围（v1.1.0+）
+- 启用懒加载初始化优化性能（v1.2.0+）
 
 ### 3. 多层架构
 
 - 每层独立配置
 - 上层自动继承下层
 - 保持配置的一致性
+- 合理使用懒加载减少启动时间（v1.2.0+）
 
 ### 4. 开发环境
 
 - 开启 `dev-mode: true`
 - 查看扫描日志
 - 及时发现问题
+- 开启启用开关确保 AutoScan 正常工作（v1.2.0+）
 
 ### 5. 生产环境
 
 - 关闭 `dev-mode: false`
 - 使用通配符简化配置
 - 排除不必要的包
+- 启用懒加载初始化提高性能（v1.2.0+）
+- 根据需要控制启用开关（v1.2.0+）
+
+### 6. 性能优化
+
+- 对非关键服务使用懒加载（v1.2.0+）
+- 对启动时不需要的组件使用懒加载（v1.2.0+）
+- 对资源密集型组件使用懒加载（v1.2.0+）
+- 避免对核心服务使用懒加载（v1.2.0+）
+
+### 7. 配置管理
+
+- 使用启用开关控制 AutoScan 的行为（v1.2.0+）
+- 使用 @Import 兼容性导入特定配置类（v1.2.0+）
+- 组合使用全局、包级和类级懒加载（v1.2.0+）

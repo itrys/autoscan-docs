@@ -2,12 +2,12 @@
 // 文档版本控制配置
 // ========================================
 // 版本号：发布新版本时更新（如 1.1.0 → 1.2.0）
-const DOC_VERSION = '1.1.0';
+const DOC_VERSION = '1.2.0';
 
 // 时间戳：同一版本内频繁更新时修改（格式：YYYYMMDDHHmm）
 // 示例：202603260852 表示 2026年3月26日08:52
 // 每次更新文档后，修改此时间戳即可
-const DOC_TIMESTAMP = '202603260852';
+const DOC_TIMESTAMP = '202604070800';
 
 // 组合版本参数：版本号_时间戳（无需修改）
 const DOC_CACHE_KEY = DOC_VERSION + '_' + DOC_TIMESTAMP;

@@ -11,6 +11,12 @@
 
 ---
 
+**v1.2.0 新特性**
+
+* [@Import 兼容性](features.md#Import-兼容性v120-)
+* [懒加载初始化](features.md#懒加载初始化v120-)
+* [启用开关](features.md#启用开关v120-)
+
 **v1.1.0 新特性**
 
 * [通配符支持](features.md#通配符包支持v110)

@@ -185,12 +185,15 @@ auto-scan:
 - 使用自定义注解进行组件分类
 - 保持注解的单一职责
 
-## 7. 组合使用新特性（v1.1.0+）
+## 7. 组合使用新特性（v1.2.0+）
 
 ### 完整配置示例
 
 ```yaml
 auto-scan:
+  # 启用开关
+  enabled: true
+  
   # 通配符支持
   base-packages:
     - org.example.*           # 单级通配符
@@ -209,16 +212,31 @@ auto-scan:
     - org.springframework.stereotype.Controller
     - com.company.annotation.BusinessService
   
+  # @Import 兼容性
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+  
+  # 懒加载初始化
+  lazy-initialization: true
+  lazy-packages:
+    - org.example.service
+  lazy-classes:
+    - org.example.controller.UserController
+  
   # 开发模式
   dev-mode: true
 ```
 
 ### 配置优先级
 
-1. **通配符解析** - 先解析通配符为具体包路径
-2. **排除过滤** - 应用包和类级别的排除
-3. **注解过滤** - 应用注解级别的过滤
-4. **扫描执行** - 执行最终的扫描
+1. **启用状态检查** - 检查是否启用 AutoScan
+2. **通配符解析** - 解析通配符为具体包路径
+3. **排除过滤** - 应用包和类级别的排除
+4. **注解过滤** - 应用注解级别的过滤
+5. **扫描执行** - 执行最终的扫描
+6. **@Import 处理** - 处理直接导入的类
+7. **懒加载处理** - 处理 Bean 的懒加载
 
 ## 8. 包命名规范
 
@@ -308,6 +326,13 @@ auto-scan:
 - 业务项目应明确指定依赖的基础设施版本
 - 定期更新基础设施版本，获取最新功能和 bug 修复
 
+**v1.2.0 升级建议**：
+- 完全向后兼容 v1.1.0
+- 可以逐步采用新特性
+- 建议先使用启用开关控制 AutoScan 的启用/禁用
+- 再使用 @Import 兼容性导入特定配置类
+- 最后使用懒加载初始化优化性能
+
 **v1.1.0 升级建议**：
 - 完全向后兼容 v1.0.0
 - 可以逐步采用新特性
@@ -321,6 +346,7 @@ auto-scan:
 - 包含配置示例和使用说明
 - 提供常见问题和解决方案
 - 维护更新日志，记录版本变更
+- 说明 v1.2.0 新特性的使用方法
 - 说明 v1.1.0 新特性的使用方法
 
 **示例建议**：
@@ -328,7 +354,8 @@ auto-scan:
 - 包含不同场景的配置示例
 - 展示最佳实践和常见用法
 - 提供集成测试和单元测试
-- 展示新特性的使用示例
+- 展示 v1.2.0 新特性的使用示例
+- 展示 v1.1.0 新特性的使用示例
 
 ## 13. 性能优化建议
 
@@ -379,3 +406,38 @@ auto-scan:
   base-packages:
     - org.**  # 扫描范围过大
 ```
+
+### 懒加载优化（v1.2.0+）
+
+```yaml
+# 推荐：针对性的懒加载
+auto-scan:
+  base-packages:
+    - org.example
+  # 全局懒加载
+  lazy-initialization: true
+  # 包级懒加载
+  lazy-packages:
+    - org.example.service
+    - org.example.repository
+  # 类级懒加载
+  lazy-classes:
+    - org.example.controller.UserController
+
+# 不推荐：过度使用懒加载
+auto-scan:
+  base-packages:
+    - org.example
+  # 全局懒加载可能影响关键服务的启动
+  lazy-initialization: true
+  # 过于宽泛的包级懒加载
+  lazy-packages:
+    - org.example.**  # 可能包含需要立即初始化的组件
+```
+
+**懒加载最佳实践**：
+- 对非关键服务使用懒加载
+- 对启动时不需要的组件使用懒加载
+- 对资源密集型组件使用懒加载
+- 避免对核心服务使用懒加载
+- 结合使用全局、包级和类级懒加载

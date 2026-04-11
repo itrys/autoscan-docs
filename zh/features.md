@@ -184,3 +184,89 @@ AutoScan 自动扫描所有 Spring 内置的从 `@Component` 派生的注解：
 | `@RestController` | `org.springframework.web.bind.annotation` | RESTful Web 控制器 |
 | `@Configuration` | `org.springframework.context.annotation` | 配置类 |
 | `@Bean` | `org.springframework.context.annotation` | Bean 定义方法 |
+
+## @Import 兼容性（v1.2.0+）
+
+AutoScan 支持在配置中直接导入特定类，与 Spring 的 `@Import` 注解功能类似，提供更灵活的配置方式：
+
+### 配置示例
+
+```yaml
+auto-scan:
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+```
+
+### 工作原理
+
+AutoScan 会直接将配置的类导入到 Spring 容器中，就像使用 `@Import` 注解一样。这对于需要导入特定配置类的场景非常有用，避免了在代码中使用 `@Import` 注解的必要性。
+
+## 懒加载初始化（v1.2.0+）
+
+AutoScan 支持 Bean 的懒加载创建，优化应用启动性能和内存使用：
+
+### 全局懒加载
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # 对所有扫描的 Bean 启用懒加载
+```
+
+### 包级懒加载
+
+```yaml
+auto-scan:
+  lazy-packages:
+    - org.example.service  # 对特定包的 Bean 启用懒加载
+    - org.example.repository
+```
+
+### 类级懒加载
+
+```yaml
+auto-scan:
+  lazy-classes:
+    - org.example.controller.UserController  # 对特定类启用懒加载
+    - org.example.service.OrderService
+```
+
+### 组合使用
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # 全局懒加载
+  lazy-packages:
+    - org.example.service  # 额外指定包级懒加载
+  lazy-classes:
+    - org.example.controller.UserController  # 额外指定类级懒加载
+```
+
+## 启用开关（v1.2.0+）
+
+AutoScan 支持完全启用或禁用组件，提供更灵活的控制：
+
+### 启用 AutoScan
+
+```yaml
+auto-scan:
+  enabled: true  # 启用 AutoScan（默认值）
+  base-packages:
+    - org.example
+```
+
+### 禁用 AutoScan
+
+```yaml
+auto-scan:
+  enabled: false  # 禁用 AutoScan
+  base-packages:
+    - org.example  # 即使配置了包，也不会进行扫描
+```
+
+### 场景使用
+
+- **开发环境**：启用 AutoScan，享受自动扫描的便利
+- **生产环境**：可以根据需要禁用 AutoScan，使用手动配置的方式
+- **测试环境**：可以禁用 AutoScan，使用特定的测试配置

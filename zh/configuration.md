@@ -12,6 +12,11 @@ AutoScan 提供了以下配置项，您可以在 `application.yml` 或 `applicat
 | `auto-scan.exclude-packages` | List<String> | 否 | 要排除的包路径列表（v1.1.0+） |
 | `auto-scan.exclude-classes` | List<String> | 否 | 要排除的类全限定名列表（v1.1.0+） |
 | `auto-scan.include-annotations` | List<String> | 否 | 要包含的注解全限定名列表（v1.1.0+） |
+| `auto-scan.imports` | List<String> | 否 | 要直接导入的类全限定名列表（类似 @Import 注解）（v1.2.0+） |
+| `auto-scan.lazy-initialization` | boolean | 否 | 全局懒加载开关，对所有扫描的 Bean 生效（v1.2.0+） |
+| `auto-scan.lazy-packages` | List<String> | 否 | 要进行懒加载的包路径列表（v1.2.0+） |
+| `auto-scan.lazy-classes` | List<String> | 否 | 要进行懒加载的类全限定名列表（v1.2.0+） |
+| `auto-scan.enabled` | boolean | 否 | 完全启用或禁用 AutoScan 组件，默认为 `true`（v1.2.0+） |
 
 ## 完整配置示例
 
@@ -19,6 +24,9 @@ AutoScan 提供了以下配置项，您可以在 `application.yml` 或 `applicat
 
 ```yaml
 auto-scan:
+  # 启用或禁用 AutoScan 组件（v1.2.0+）
+  enabled: true  # 默认值为 true
+  
   # 基础包路径（必填）
   # 支持通配符：* 单级，** 多级
   base-packages:
@@ -45,6 +53,24 @@ auto-scan:
     - org.springframework.stereotype.Controller
     - org.example.annotation.CustomComponent  # 自定义注解
   
+  # 直接导入（可选）- v1.2.0+
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+  
+  # 懒加载初始化（可选）- v1.2.0+
+  # 全局懒加载
+  lazy-initialization: true
+  # 包级懒加载
+  lazy-packages:
+    - org.example.service
+    - org.example.repository
+  # 类级懒加载
+  lazy-classes:
+    - org.example.controller.UserController
+    - org.example.service.OrderService
+  
   # 开发模式
   # true: 输出详细的扫描日志
   # false: 静默模式
@@ -55,6 +81,9 @@ auto-scan:
 ### Properties 格式
 
 ```properties
+# 启用或禁用 AutoScan 组件（v1.2.0+）
+auto-scan.enabled=true
+
 # 基础包路径（必填）
 auto-scan.base-packages[0]=org.example.*
 auto-scan.base-packages[1]=com.company.**
@@ -73,6 +102,21 @@ auto-scan.exclude-classes[0]=org.example.demo.DemoClass
 auto-scan.include-annotations[0]=org.springframework.stereotype.Service
 auto-scan.include-annotations[1]=org.springframework.stereotype.Controller
 auto-scan.include-annotations[2]=org.example.annotation.CustomComponent
+
+# 直接导入（可选）- v1.2.0+
+auto-scan.imports[0]=org.example.config.AppConfig
+auto-scan.imports[1]=org.example.config.WebConfig
+auto-scan.imports[2]=org.example.config.SecurityConfig
+
+# 懒加载初始化（可选）- v1.2.0+
+# 全局懒加载
+auto-scan.lazy-initialization=true
+# 包级懒加载
+auto-scan.lazy-packages[0]=org.example.service
+auto-scan.lazy-packages[1]=org.example.repository
+# 类级懒加载
+auto-scan.lazy-classes[0]=org.example.controller.UserController
+auto-scan.lazy-classes[1]=org.example.service.OrderService
 
 # 开发模式
 auto-scan.dev-mode=true
@@ -193,6 +237,86 @@ auto-scan:
 
 默认为根据 `spring.profiles.active` 自动检测，如果当前激活的配置文件是 `dev`、`local` 或 `test`，则自动开启开发模式。
 
+### imports（v1.2.0+）
+
+`imports` 用于直接导入特定的类，与 Spring 的 `@Import` 注解功能类似。
+
+```yaml
+auto-scan:
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+```
+
+**使用场景**：
+- 导入特定的配置类
+- 导入第三方库的配置
+- 避免在代码中使用 `@Import` 注解
+
+### lazy-initialization（v1.2.0+）
+
+`lazy-initialization` 用于启用全局懒加载，对所有扫描的 Bean 生效。
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # 启用全局懒加载
+```
+
+**使用场景**：
+- 优化应用启动性能
+- 减少内存使用
+- 适合大型应用
+
+### lazy-packages（v1.2.0+）
+
+`lazy-packages` 用于指定需要懒加载的包路径列表。
+
+```yaml
+auto-scan:
+  lazy-packages:
+    - org.example.service  # 对该包的 Bean 启用懒加载
+    - org.example.repository
+```
+
+**使用场景**：
+- 对特定包的 Bean 启用懒加载
+- 更精细地控制懒加载范围
+
+### lazy-classes（v1.2.0+）
+
+`lazy-classes` 用于指定需要懒加载的类全限定名列表。
+
+```yaml
+auto-scan:
+  lazy-classes:
+    - org.example.controller.UserController  # 对该类启用懒加载
+    - org.example.service.OrderService
+```
+
+**使用场景**：
+- 对特定类启用懒加载
+- 精确控制懒加载范围
+
+### enabled（v1.2.0+）
+
+`enabled` 用于完全启用或禁用 AutoScan 组件。
+
+```yaml
+# 启用 AutoScan
+auto-scan:
+  enabled: true  # 默认值为 true
+
+# 禁用 AutoScan
+auto-scan:
+  enabled: false  # 即使配置了其他选项，也不会进行扫描
+```
+
+**使用场景**：
+- 开发环境：启用 AutoScan，享受自动扫描的便利
+- 生产环境：可以根据需要禁用 AutoScan，使用手动配置的方式
+- 测试环境：可以禁用 AutoScan，使用特定的测试配置
+
 ## 配置场景
 
 ### 场景 1：技术基础设施项目
@@ -273,6 +397,49 @@ auto-scan:
     - org.example.annotation.CustomComponent
   
   dev-mode: true
+```
+
+### 场景 7：@Import 兼容性（v1.2.0+）
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 直接导入配置类
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+  dev-mode: true
+```
+
+### 场景 8：懒加载初始化（v1.2.0+）
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 全局懒加载
+  lazy-initialization: true
+  # 包级懒加载
+  lazy-packages:
+    - org.example.service
+    - org.example.repository
+  # 类级懒加载
+  lazy-classes:
+    - org.example.controller.UserController
+  dev-mode: true
+```
+
+### 场景 9：禁用 AutoScan（v1.2.0+）
+
+```yaml
+auto-scan:
+  # 禁用 AutoScan
+  enabled: false
+  # 即使配置了包，也不会进行扫描
+  base-packages:
+    - org.example
 ```
 
 ## 配置最佳实践
