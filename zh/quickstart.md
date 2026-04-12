@@ -8,7 +8,7 @@
 <dependency>
     <groupId>org.itrys</groupId>
     <artifactId>autoscan-spring-boot-starter</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -109,6 +109,51 @@ auto-scan:
     - org.example  # 即使配置了包，也不会进行扫描
 ```
 
+### 基于正则表达式的过滤（v1.3.0+）
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 排除包的正则表达式模式
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+  # 包含包的正则表达式模式
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+  dev-mode: true
+```
+
+### 基于环境的条件配置（v1.3.0+）
+
+```yaml
+# 开发环境
+spring:
+  profiles:
+    active: dev
+
+auto-scan:
+  base-packages:
+    - org.example.*
+  dev-mode: true
+
+# 生产环境
+spring:
+  profiles:
+    active: prod
+
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+    - org\.example\.example\..*  # 排除示例包
+```
+
 ## 3. 启动应用
 
 ```java
@@ -144,7 +189,21 @@ public class ProjectApplication {
 
 如果一切正常，您的应用应该能够同时使用来自基础包和业务包的组件。
 
-## 5. 从 v1.1.0 迁移
+## 5. 从 v1.2.0 迁移
+
+v1.3.0 完全向后兼容 v1.2.0，只需更新版本号：
+
+```xml
+<dependency>
+    <groupId>org.itrys</groupId>
+    <artifactId>autoscan-spring-boot-starter</artifactId>
+    <version>1.3.0</version>
+</dependency>
+```
+
+所有现有配置将继续工作，无需任何更改。
+
+## 6. 从 v1.1.0 迁移
 
 v1.2.0 完全向后兼容 v1.1.0，只需更新版本号：
 
@@ -247,6 +306,62 @@ auto-scan:
   enabled: false
 ```
 
+### 基于正则表达式的过滤（v1.3.0+）
+
+```yaml
+auto-scan:
+  # 排除包的正则表达式模式
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+    - .*\.temp\..*  # 排除包含 "temp" 的包
+  # 包含包的正则表达式模式
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+    - .*Service  # 包含以 "Service" 结尾的类
+```
+
+### 基于环境的条件配置（v1.3.0+）
+
+```yaml
+# 开发环境
+spring:
+  profiles:
+    active: dev
+
+auto-scan:
+  base-packages:
+    - org.example.*
+  dev-mode: true
+
+# 测试环境
+spring:
+  profiles:
+    active: test
+
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  exclude-packages:
+    - org.example.test
+
+# 生产环境
+spring:
+  profiles:
+    active: prod
+
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+    - org\.example\.example\..*  # 排除示例包
+```
+
 ## 7. 常见问题
 
 ### 组件无法被扫描？
@@ -280,6 +395,39 @@ auto-scan:
     - org.example
   include-annotations:
     - org.example.annotation.CustomComponent
+```
+
+### 如何使用正则表达式进行包过滤？
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 排除使用正则表达式
+  exclude-packages-regex:
+    - org\.example\.test\..*
+  # 包含使用正则表达式
+  include-packages-regex:
+    - org\.example\.boot\..*
+```
+
+### 如何配置基于环境的扫描？
+
+```yaml
+# application-dev.yml
+auto-scan:
+  base-packages:
+    - org.example.*
+  dev-mode: true
+
+# application-prod.yml
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*
 ```
 
 ## 8. 下一步

@@ -507,6 +507,161 @@ auto-scan:
 
 ### 7. 配置管理
 
+**配置管理**：
+
 - 使用启用开关控制 AutoScan 的行为（v1.2.0+）
 - 使用 @Import 兼容性导入特定配置类（v1.2.0+）
 - 组合使用全局、包级和类级懒加载（v1.2.0+）
+- 使用正则表达式过滤进行更灵活的包管理（v1.3.0+）
+- 使用环境条件配置实现不同环境的差异化扫描（v1.3.0+）
+
+## 场景 12：使用正则表达式进行包过滤（v1.3.0+）
+
+**定位**：使用正则表达式进行更灵活的包过滤，精确控制扫描范围
+
+**配置**：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # 排除包的正则表达式模式
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+    - .*\.temp\..*  # 排除包含 "temp" 的包
+  # 包含包的正则表达式模式
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+    - org\.example\.controller\..*  # 包含控制器包
+  dev-mode: true
+```
+
+**说明**：正则表达式过滤提供了更灵活的包路径匹配能力，可以实现更精确的扫描控制。
+
+**适用场景**：
+- 复杂的包结构需要更精细的过滤
+- 需要基于包名模式进行过滤
+- 排除或包含特定命名模式的包
+- 处理动态变化的包结构
+
+## 场景 13：基于环境的条件扫描（v1.3.0+）
+
+**定位**：在不同环境中使用不同的扫描配置，优化各环境性能
+
+**开发环境** (`application-dev.yml`)：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.*
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Component
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+```
+
+**测试环境** (`application-test.yml`)：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+    - org.example.example
+```
+
+**生产环境** (`application-prod.yml`)：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+    - org.example.controller
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+    - org\.example\.example\..*  # 排除示例包
+    - .*\.temp\..*  # 排除临时包
+    - .*\.demo\..*  # 排除演示包
+```
+
+**说明**：基于环境的条件扫描利用 Spring Boot 的多环境配置机制，在不同环境中使用不同的扫描配置。
+
+**适用场景**：
+- 开发环境需要包含更多包便于调试
+- 测试环境需要排除测试代码
+- 生产环境需要最小化扫描范围，提高性能
+- 不同环境有不同的扫描需求
+
+## 场景 14：组合使用 v1.3.0 新特性
+
+**定位**：充分利用 v1.3.0 的所有新特性，实现最灵活的扫描控制
+
+**配置**：
+
+```yaml
+auto-scan:
+  # 启用开关
+  enabled: true
+  
+  # 通配符支持
+  base-packages:
+    - org.example.*
+    - com.company.**
+  
+  # 排除支持
+  exclude-packages:
+    - org.example.test
+  exclude-classes:
+    - org.example.demo.DemoClass
+  
+  # 正则表达式过滤（v1.3.0+）
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+  
+  # 自定义注解支持
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.example.annotation.CustomComponent
+  
+  # @Import 兼容性
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+  
+  # 懒加载初始化
+  lazy-initialization: true
+  lazy-packages:
+    - org.example.service
+  lazy-classes:
+    - org.example.controller.UserController
+  
+  # 开发模式
+  dev-mode: true
+```
+
+**说明**：v1.3.0 的新特性可以与之前版本的特性灵活组合使用，实现非常强大和灵活的扫描控制。
+
+**优势**：
+- 正则表达式过滤提供更灵活的包管理
+- 环境条件配置实现不同环境的差异化扫描
+- 与现有特性完美集成
+- 提供最全面的扫描控制能力

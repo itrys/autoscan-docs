@@ -270,3 +270,109 @@ auto-scan:
 - **开发环境**：启用 AutoScan，享受自动扫描的便利
 - **生产环境**：可以根据需要禁用 AutoScan，使用手动配置的方式
 - **测试环境**：可以禁用 AutoScan，使用特定的测试配置
+
+## 高级过滤（v1.3.0+）
+
+AutoScan 支持基于正则表达式的包过滤，提供更灵活的扫描控制：
+
+### 基于正则表达式的排除
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+    - .*\.temp\..*  # 排除包含 "temp" 的包
+```
+
+### 基于正则表达式的包含
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+    - org\.example\.controller\..*  # 包含控制器包
+    - .*Service  # 包含以 "Service" 结尾的类
+```
+
+### 组合使用
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+```
+
+## 条件配置（v1.3.0+）
+
+AutoScan 支持基于环境的扫描配置，允许在不同环境中使用不同的扫描行为：
+
+### 开发环境
+
+```yaml
+spring:
+  profiles:
+    active: dev
+
+auto-scan:
+  base-packages:
+    - org.example.*  # 使用通配符提高灵活性
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Component
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+```
+
+### 测试环境
+
+```yaml
+spring:
+  profiles:
+    active: test
+
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+    - org.example.example
+```
+
+### 生产环境
+
+```yaml
+spring:
+  profiles:
+    active: prod
+
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+    - org.example.controller
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+    - org\.example\.example\..*  # 排除示例包
+    - .*\.temp\..*  # 排除临时包
+    - .*\.demo\..*  # 排除演示包
+```

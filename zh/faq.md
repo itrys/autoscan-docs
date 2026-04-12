@@ -200,14 +200,14 @@ auto-scan:
 
 **A**: AutoScan 的未来规划包括：
 
-**v1.3.0 计划**：
-- 🎯 高级过滤 - 基于正则表达式的包过滤
-- 🔄 条件配置 - 基于环境的扫描
-
-**长期愿景**：
+**v1.4.0 计划**：
 - 🔌 插件系统 - 可扩展的扫描策略
 - 📊 监控仪表板 - 可视化扫描分析
+
+**长期愿景**：
 - 🌐 Spring Cloud 集成 - 微服务优化
+- 🤖 智能扫描 - 基于 AI 的扫描优化
+- 📱 配置可视化工具 - 图形化配置界面
 
 ## Q17: 如何创建自定义注解并使用？
 
@@ -333,3 +333,87 @@ auto-scan:
 ```
 
 懒加载可以提高应用启动性能和减少内存使用，特别是对于大型应用。
+
+## Q21: 如何使用正则表达式进行包过滤？
+
+**A**: 从 v1.3.0 版本开始，AutoScan 支持使用正则表达式进行包过滤：
+
+**排除包的正则表达式**：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+    - .*\.temp\..*  # 排除包含 "temp" 的包
+```
+
+**包含包的正则表达式**：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+    - .*Service  # 包含以 "Service" 结尾的类
+```
+
+**组合使用**：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*
+  include-packages-regex:
+    - org\.example\.boot\..*
+```
+
+## Q22: 如何配置基于环境的扫描？
+
+**A**: 从 v1.3.0 版本开始，AutoScan 支持基于环境的扫描配置，利用 Spring Boot 的多环境配置机制：
+
+**开发环境** (`application-dev.yml`)：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.*
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Component
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+```
+
+**生产环境** (`application-prod.yml`)：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+    - org\.example\.example\..*  # 排除示例包
+```
+
+**测试环境** (`application-test.yml`)：
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  exclude-packages:
+    - org.example.test
+```
+
+通过设置 `spring.profiles.active` 来切换不同环境的配置。

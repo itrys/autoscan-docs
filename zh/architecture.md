@@ -9,12 +9,14 @@ autoscan-spring-boot-starter
 │   └── 在 Spring 容器启动早期执行扫描
 │   └── 支持通配符解析、排除过滤和自定义注解
 │   └── 支持 @Import 兼容性和懒加载初始化
+│   └── 支持正则表达式过滤和环境条件配置
 │
 ├── AutoScanProperties
 │   └── 配置属性类
 │   └── 支持 base-packages, business-packages, dev-mode
 │   └── 支持 exclude-packages, exclude-classes, include-annotations
 │   └── 支持 imports, lazy-initialization, lazy-packages, lazy-classes, enabled
+│   └── 支持 exclude-packages-regex, include-packages-regex
 │
 └── spring.factories
     └── 注册 AutoScanApplicationContextInitializer
@@ -82,6 +84,8 @@ org.itrys.autoscan.context.AutoScanApplicationContextInitializer
    - `auto-scan.lazy-packages`（v1.2.0+）
    - `auto-scan.lazy-classes`（v1.2.0+）
    - `auto-scan.enabled`（v1.2.0+）
+   - `auto-scan.exclude-packages-regex`（v1.3.0+）
+   - `auto-scan.include-packages-regex`（v1.3.0+）
 
 2. **检查启用状态**（v1.2.0+）- 如果 `auto-scan.enabled` 为 false，则跳过扫描
 
@@ -105,12 +109,12 @@ org.itrys.autoscan.context.AutoScanApplicationContextInitializer
 
 11. **处理懒加载初始化**（v1.2.0+）- 为指定的 Bean 设置懒加载
 
-### v1.2.0 增强流程
+### v1.3.0 增强流程
 
 ```
 读取配置
     ↓
-检查启用状态（新增）
+检查启用状态
     ↓
 解析通配符
     ↓
@@ -118,15 +122,17 @@ org.itrys.autoscan.context.AutoScanApplicationContextInitializer
     ↓
 应用排除过滤器
     ↓
+应用正则表达式过滤器（新增）
+    ↓
 设置注解过滤器
     ↓
 执行扫描
     ↓
 注册组件
     ↓
-处理 @Import 导入（新增）
+处理 @Import 导入
     ↓
-处理懒加载初始化（新增）
+处理懒加载初始化
 ```
 
 ## 执行时序
@@ -137,16 +143,17 @@ AutoScan 的执行时序非常关键，它在 Spring 容器启动的早期阶段
 1. Spring Boot 启动
 2. 加载 `spring.factories` 中的 `ApplicationContextInitializer`
 3. 执行 `AutoScanApplicationContextInitializer.initialize()` 方法
-4. 读取配置（包含 v1.2.0 新配置项）
+4. 读取配置（包含 v1.3.0 新配置项）
 5. 检查启用状态（v1.2.0+）- 如果 `enabled` 为 false，则跳过后续步骤
 6. 解析通配符（v1.1.0+）
 7. 应用排除和注解过滤器（v1.1.0+）
-8. 执行扫描
-9. 注册扫描到的组件
-10. 处理 @Import 导入（v1.2.0+）- 直接导入指定的类
-11. 处理懒加载初始化（v1.2.0+）- 为指定的 Bean 设置懒加载
-12. 继续 Spring 容器的启动流程
-13. 处理 `@ComponentScan` 注解
+8. 应用正则表达式过滤器（v1.3.0+）- 处理 exclude-packages-regex 和 include-packages-regex
+9. 执行扫描
+10. 注册扫描到的组件
+11. 处理 @Import 导入（v1.2.0+）- 直接导入指定的类
+12. 处理懒加载初始化（v1.2.0+）- 为指定的 Bean 设置懒加载
+13. 继续 Spring 容器的启动流程
+14. 处理 `@ComponentScan` 注解
 
 ## 技术原理
 
@@ -211,6 +218,20 @@ AutoScan 的核心技术原理是利用 Spring 的 `ApplicationContextInitialize
 - 当 `enabled` 为 `false` 时，跳过所有扫描和处理逻辑
 - 默认为 `true`，保持向后兼容
 
+### 11. 正则表达式过滤（v1.3.0+）
+
+通过 `Pattern` 类和自定义 `TypeFilter` 实现：
+- 支持使用正则表达式匹配包路径
+- 支持排除和包含两种模式
+- 提供更灵活的扫描控制
+
+### 12. 环境条件配置（v1.3.0+）
+
+利用 Spring Boot 的环境配置机制实现：
+- 支持在不同环境中使用不同的扫描配置
+- 结合 `spring.profiles.active` 实现环境切换
+- 提供更灵活的配置管理
+
 ## 设计优势
 
 ### 1. 非侵入式
@@ -243,6 +264,12 @@ AutoScan 的核心技术原理是利用 Spring 的 `ApplicationContextInitialize
 - 懒加载初始化：优化应用启动性能和内存使用
 - 启用开关：提供完全的启用/禁用控制
 
+### 6. 高级过滤能力（v1.3.0+）
+
+- 正则表达式过滤：支持使用正则表达式进行包过滤
+- 环境条件配置：支持基于环境的扫描配置
+- 更精细的扫描控制：结合正则表达式和环境配置，实现更灵活的扫描策略
+
 ## 架构演进
 
 ### v1.0.0 架构
@@ -273,12 +300,22 @@ AutoScan 的核心技术原理是利用 Spring 的 `ApplicationContextInitialize
 2. @Import 处理层
 3. 懒加载处理层
 
+### v1.3.0 架构
+
+```
+配置读取 → 启用状态检查 → 通配符解析 → 包列表构建 → 排除过滤 → 正则表达式过滤 → 注解过滤 → 扫描 → 注册 → @Import 处理 → 懒加载处理
+```
+
+**增强点**：
+1. 正则表达式过滤层
+2. 环境条件配置支持
+
 ## 未来规划
 
-### v1.3.0 计划
+### v1.4.0 计划
 
-- 正则表达式过滤
-- 条件配置
+- 插件系统
+- 监控仪表板
 
 ### 长期愿景
 

@@ -11,6 +11,11 @@
 
 ---
 
+**v1.3.0 新特性**
+
+* [高级过滤](features.md#高级过滤v130-)
+* [条件配置](features.md#条件配置v130-)
+
 **v1.2.0 新特性**
 
 * [@Import 兼容性](features.md#Import-兼容性v120-)

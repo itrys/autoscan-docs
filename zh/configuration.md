@@ -17,6 +17,8 @@ AutoScan 提供了以下配置项，您可以在 `application.yml` 或 `applicat
 | `auto-scan.lazy-packages` | List<String> | 否 | 要进行懒加载的包路径列表（v1.2.0+） |
 | `auto-scan.lazy-classes` | List<String> | 否 | 要进行懒加载的类全限定名列表（v1.2.0+） |
 | `auto-scan.enabled` | boolean | 否 | 完全启用或禁用 AutoScan 组件，默认为 `true`（v1.2.0+） |
+| `auto-scan.exclude-packages-regex` | List<String> | 否 | 要排除的包路径正则表达式列表（v1.3.0+） |
+| `auto-scan.include-packages-regex` | List<String> | 否 | 要包含的包路径正则表达式列表（v1.3.0+） |
 
 ## 完整配置示例
 
@@ -71,6 +73,18 @@ auto-scan:
     - org.example.controller.UserController
     - org.example.service.OrderService
   
+  # 基于正则表达式的包过滤（可选）- v1.3.0+
+  # 排除包的正则表达式模式
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+    - .*\.temp\..*  # 排除包含 "temp" 的包
+  # 包含包的正则表达式模式
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+    - org\.example\.controller\..*  # 包含控制器包
+  
   # 开发模式
   # true: 输出详细的扫描日志
   # false: 静默模式
@@ -117,6 +131,16 @@ auto-scan.lazy-packages[1]=org.example.repository
 # 类级懒加载
 auto-scan.lazy-classes[0]=org.example.controller.UserController
 auto-scan.lazy-classes[1]=org.example.service.OrderService
+
+# 基于正则表达式的包过滤（可选）- v1.3.0+
+# 排除包的正则表达式模式
+auto-scan.exclude-packages-regex[0]=org\.example\.test\..*
+auto-scan.exclude-packages-regex[1]=org\.example\.example\..*
+auto-scan.exclude-packages-regex[2]=.*\.temp\..*
+# 包含包的正则表达式模式
+auto-scan.include-packages-regex[0]=org\.example\.boot\..*
+auto-scan.include-packages-regex[1]=org\.example\.business\..*
+auto-scan.include-packages-regex[2]=org\.example\.controller\..*
 
 # 开发模式
 auto-scan.dev-mode=true
@@ -317,6 +341,41 @@ auto-scan:
 - 生产环境：可以根据需要禁用 AutoScan，使用手动配置的方式
 - 测试环境：可以禁用 AutoScan，使用特定的测试配置
 
+### exclude-packages-regex（v1.3.0+）
+
+`exclude-packages-regex` 用于使用正则表达式模式排除包。
+
+```yaml
+auto-scan:
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除所有测试包
+    - org\.example\.example\..*  # 排除所有示例包
+    - .*\.temp\..*  # 排除包含 "temp" 的包
+```
+
+**使用场景**：
+- 排除匹配特定模式的包
+- 更灵活的排除规则
+- 处理复杂的包结构
+
+### include-packages-regex（v1.3.0+）
+
+`include-packages-regex` 用于使用正则表达式模式包含包。如果指定了此配置，则只有匹配这些模式的包才会被包含。
+
+```yaml
+auto-scan:
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+    - org\.example\.controller\..*  # 包含控制器包
+    - .*Service  # 包含以 "Service" 结尾的类
+```
+
+**使用场景**：
+- 只包含匹配特定模式的包
+- 更灵活的包含规则
+- 精确控制扫描范围
+
 ## 配置场景
 
 ### 场景 1：技术基础设施项目
@@ -440,6 +499,90 @@ auto-scan:
   # 即使配置了包，也不会进行扫描
   base-packages:
     - org.example
+```
+
+### 场景 10：基于正则表达式的包过滤（v1.3.0+）
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  
+  # 排除包的正则表达式模式
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+    - org\.example\.example\..*  # 排除示例包
+    - .*\.temp\..*  # 排除临时包
+  
+  # 包含包的正则表达式模式
+  include-packages-regex:
+    - org\.example\.boot\..*  # 包含启动包
+    - org\.example\.business\..*  # 包含业务包
+    - org\.example\.controller\..*  # 包含控制器包
+  
+  dev-mode: true
+```
+
+### 场景 11：基于环境的条件扫描（v1.3.0+）
+
+**开发环境**：
+
+```yaml
+spring:
+  profiles:
+    active: dev
+
+auto-scan:
+  base-packages:
+    - org.example.*  # 使用通配符提高灵活性
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Component
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+```
+
+**测试环境**：
+
+```yaml
+spring:
+  profiles:
+    active: test
+
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+    - org.example.example
+```
+
+**生产环境**：
+
+```yaml
+spring:
+  profiles:
+    active: prod
+
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+    - org.example.controller
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # 排除测试包
+    - org\.example\.example\..*  # 排除示例包
+    - .*\.temp\..*  # 排除临时包
+    - .*\.demo\..*  # 排除演示包
 ```
 
 ## 配置最佳实践
