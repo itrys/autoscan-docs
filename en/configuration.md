@@ -12,6 +12,13 @@ AutoScan provides the following configuration items that you can configure in `a
 | `auto-scan.exclude-packages` | List<String> | No | List of package paths to exclude (v1.1.0+) |
 | `auto-scan.exclude-classes` | List<String> | No | List of fully qualified class names to exclude (v1.1.0+) |
 | `auto-scan.include-annotations` | List<String> | No | List of fully qualified annotation names to include (v1.1.0+) |
+| `auto-scan.imports` | List<String> | No | List of fully qualified class names to directly import (like @Import annotation) (v1.2.0+) |
+| `auto-scan.lazy-initialization` | boolean | No | Global lazy initialization switch for all scanned beans (v1.2.0+) |
+| `auto-scan.lazy-packages` | List<String> | No | List of package paths for which beans should be lazily initialized (v1.2.0+) |
+| `auto-scan.lazy-classes` | List<String> | No | List of fully qualified class names for which beans should be lazily initialized (v1.2.0+) |
+| `auto-scan.enabled` | boolean | No | Completely enable or disable AutoScan component, defaults to `true` (v1.2.0+) |
+| `auto-scan.exclude-packages-regex` | List<String> | No | List of regex patterns for packages to exclude (v1.3.0+) |
+| `auto-scan.include-packages-regex` | List<String> | No | List of regex patterns for packages to include (v1.3.0+)
 
 ## Complete Configuration Example
 
@@ -19,6 +26,9 @@ AutoScan provides the following configuration items that you can configure in `a
 
 ```yaml
 auto-scan:
+  # Enable or disable AutoScan component (v1.2.0+)
+  enabled: true  # Default value is true
+  
   # Base package paths (required)
   # Supports wildcards: * single-level, ** multi-level
   base-packages:
@@ -45,6 +55,36 @@ auto-scan:
     - org.springframework.stereotype.Controller
     - org.example.annotation.CustomComponent  # Custom annotation
   
+  # Direct imports (optional) - v1.2.0+
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+  
+  # Lazy initialization (optional) - v1.2.0+
+  # Global lazy initialization
+  lazy-initialization: true
+  # Package-level lazy initialization
+  lazy-packages:
+    - org.example.service
+    - org.example.repository
+  # Class-level lazy initialization
+  lazy-classes:
+    - org.example.controller.UserController
+    - org.example.service.OrderService
+  
+  # Regex-based package filtering (optional) - v1.3.0+
+  # Exclude packages using regex patterns
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude all test packages
+    - org\.example\.example\..*  # Exclude all example packages
+    - .*\.temp\..*  # Exclude packages containing "temp"
+  # Include packages using regex patterns
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+    - org\.example\.controller\..*  # Include controller packages
+  
   # Development mode
   # true: Output detailed scanning logs
   # false: Silent mode
@@ -55,6 +95,9 @@ auto-scan:
 ### Properties Format
 
 ```properties
+# Enable or disable AutoScan component (v1.2.0+)
+auto-scan.enabled=true
+
 # Base package paths (required)
 auto-scan.base-packages[0]=org.example.*
 auto-scan.base-packages[1]=com.company.**
@@ -73,6 +116,31 @@ auto-scan.exclude-classes[0]=org.example.demo.DemoClass
 auto-scan.include-annotations[0]=org.springframework.stereotype.Service
 auto-scan.include-annotations[1]=org.springframework.stereotype.Controller
 auto-scan.include-annotations[2]=org.example.annotation.CustomComponent
+
+# Direct imports (optional) - v1.2.0+
+auto-scan.imports[0]=org.example.config.AppConfig
+auto-scan.imports[1]=org.example.config.WebConfig
+auto-scan.imports[2]=org.example.config.SecurityConfig
+
+# Lazy initialization (optional) - v1.2.0+
+# Global lazy initialization
+auto-scan.lazy-initialization=true
+# Package-level lazy initialization
+auto-scan.lazy-packages[0]=org.example.service
+auto-scan.lazy-packages[1]=org.example.repository
+# Class-level lazy initialization
+auto-scan.lazy-classes[0]=org.example.controller.UserController
+auto-scan.lazy-classes[1]=org.example.service.OrderService
+
+# Regex-based package filtering (optional) - v1.3.0+
+# Exclude packages using regex patterns
+auto-scan.exclude-packages-regex[0]=org\.example\.test\..*
+auto-scan.exclude-packages-regex[1]=org\.example\.example\..*
+auto-scan.exclude-packages-regex[2]=.*\.temp\..*
+# Include packages using regex patterns
+auto-scan.include-packages-regex[0]=org\.example\.boot\..*
+auto-scan.include-packages-regex[1]=org\.example\.business\..*
+auto-scan.include-packages-regex[2]=org\.example\.controller\..*
 
 # Development mode
 auto-scan.dev-mode=true
@@ -192,6 +260,121 @@ auto-scan:
 - Number of successfully registered beans
 
 Defaults to auto-detection based on `spring.profiles.active`, automatically enabling development mode if the current active profile is `dev`, `local`, or `test`.
+
+### imports (v1.2.0+)
+
+`imports` is used to directly import specific classes, similar to Spring's `@Import` annotation.
+
+```yaml
+auto-scan:
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+```
+
+**Use Cases**:
+- Import specific configuration classes
+- Import third-party library configurations
+- Avoid using `@Import` annotation in code
+
+### lazy-initialization (v1.2.0+)
+
+`lazy-initialization` is used to enable global lazy initialization for all scanned beans.
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # Enable global lazy initialization
+```
+
+**Use Cases**:
+- Optimize application startup performance
+- Reduce memory usage
+- Suitable for large applications
+
+### lazy-packages (v1.2.0+)
+
+`lazy-packages` is used to specify package paths for which beans should be lazily initialized.
+
+```yaml
+auto-scan:
+  lazy-packages:
+    - org.example.service  # Enable lazy loading for beans in this package
+    - org.example.repository
+```
+
+**Use Cases**:
+- Enable lazy loading for beans in specific packages
+- More fine-grained control over lazy loading scope
+
+### lazy-classes (v1.2.0+)
+
+`lazy-classes` is used to specify fully qualified class names for which beans should be lazily initialized.
+
+```yaml
+auto-scan:
+  lazy-classes:
+    - org.example.controller.UserController  # Enable lazy loading for this class
+    - org.example.service.OrderService
+```
+
+**Use Cases**:
+- Enable lazy loading for specific classes
+- Precise control over lazy loading scope
+
+### enabled (v1.2.0+)
+
+`enabled` is used to completely enable or disable the AutoScan component.
+
+```yaml
+# Enable AutoScan
+auto-scan:
+  enabled: true  # Default value is true
+
+# Disable AutoScan
+auto-scan:
+  enabled: false  # Even if other options are configured, no scanning will be performed
+```
+
+**Use Cases**:
+- Development environment: Enable AutoScan to enjoy the convenience of automatic scanning
+- Production environment: Can disable AutoScan if needed, using manual configuration
+- Test environment: Can disable AutoScan, using specific test configurations
+
+### exclude-packages-regex (v1.3.0+)
+
+`exclude-packages-regex` is used to exclude packages using regex patterns.
+
+```yaml
+auto-scan:
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude all test packages
+    - org\.example\.example\..*  # Exclude all example packages
+    - .*\.temp\..*  # Exclude packages containing "temp"
+```
+
+**Use Cases**:
+- Exclude packages matching specific patterns
+- More flexible exclusion rules
+- Handle complex package structures
+
+### include-packages-regex (v1.3.0+)
+
+`include-packages-regex` is used to include packages using regex patterns. If specified, only packages matching these patterns will be included.
+
+```yaml
+auto-scan:
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+    - org\.example\.controller\..*  # Include controller packages
+    - .*Service  # Include classes ending with "Service"
+```
+
+**Use Cases**:
+- Include only packages matching specific patterns
+- More flexible inclusion rules
+- Precise control over scanning scope
 
 ## Configuration Scenarios
 

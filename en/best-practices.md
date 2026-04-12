@@ -185,12 +185,15 @@ auto-scan:
 - Use custom annotations for component classification
 - Maintain single responsibility for annotations
 
-## 7. Combined Use of New Features (v1.1.0+)
+## 7. Combined Use of New Features (v1.3.0+)
 
 ### Complete Configuration Example
 
 ```yaml
 auto-scan:
+  # Enable switch
+  enabled: true
+  
   # Wildcard support
   base-packages:
     - org.example.*           # Single-level wildcard
@@ -203,11 +206,32 @@ auto-scan:
   exclude-classes:
     - org.example.demo.DemoClass  # Exclude specific class
   
+  # Regex filtering (v1.3.0+)
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude all test packages
+    - org\.example\.example\..*  # Exclude all example packages
+    - .*\.temp\..*  # Exclude temporary packages
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+  
   # Custom annotation support
   include-annotations:
     - org.springframework.stereotype.Service
     - org.springframework.stereotype.Controller
     - com.company.annotation.BusinessService
+  
+  # @Import compatibility
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+  
+  # Lazy initialization
+  lazy-initialization: true
+  lazy-packages:
+    - org.example.service
+  lazy-classes:
+    - org.example.controller.UserController
   
   # Development mode
   dev-mode: true
@@ -215,10 +239,14 @@ auto-scan:
 
 ### Configuration Priority
 
-1. **Wildcard Resolution** - First resolve wildcards to specific package paths
-2. **Exclude Filtering** - Apply package and class-level exclusion
-3. **Annotation Filtering** - Apply annotation-level filtering
-4. **Scan Execution** - Execute final scanning
+1. **Enable Status Check** - Check if AutoScan is enabled
+2. **Wildcard Resolution** - Resolve wildcards to specific package paths
+3. **Exclude Filtering** - Apply package and class-level exclusion
+4. **Regex Filtering** - Apply regex-based exclusion and inclusion (v1.3.0+)
+5. **Annotation Filtering** - Apply annotation-level filtering
+6. **Scan Execution** - Execute final scanning
+7. **@Import Processing** - Process directly imported classes
+8. **Lazy Initialization Processing** - Process bean lazy loading
 
 ## 8. Package Naming Conventions
 
@@ -308,6 +336,20 @@ auto-scan:
 - Business projects should explicitly specify dependent infrastructure versions
 - Regularly update infrastructure versions to get latest features and bug fixes
 
+**v1.3.0 Upgrade Recommendations**:
+- Fully backward compatible with v1.2.0
+- Can gradually adopt new features
+- Recommend using regex filtering for more flexible package management first
+- Then use environment conditional configuration to implement environment-specific scanning
+- Combine wildcards and regex for more precise scanning control
+
+**v1.2.0 Upgrade Recommendations**:
+- Fully backward compatible with v1.1.0
+- Can gradually adopt new features
+- Recommend using enable switch to control AutoScan's enable/disable first
+- Then use @Import compatibility to import specific configuration classes
+- Finally use lazy initialization to optimize performance
+
 **v1.1.0 Upgrade Recommendations**:
 - Fully backward compatible with v1.0.0
 - Can gradually adopt new features
@@ -321,6 +363,8 @@ auto-scan:
 - Include configuration examples and usage instructions
 - Provide FAQs and solutions
 - Maintain changelog to record version changes
+- Explain how to use v1.3.0 new features
+- Explain how to use v1.2.0 new features
 - Explain how to use v1.1.0 new features
 
 **Example Recommendations**:
@@ -328,7 +372,9 @@ auto-scan:
 - Include configuration examples for different scenarios
 - Demonstrate best practices and common usage
 - Provide integration tests and unit tests
-- Show usage examples of new features
+- Show usage examples of v1.3.0 new features
+- Show usage examples of v1.2.0 new features
+- Show usage examples of v1.1.0 new features
 
 ## 13. Performance Optimization Recommendations
 

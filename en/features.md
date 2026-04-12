@@ -184,3 +184,195 @@ AutoScan automatically scans all Spring built-in annotations derived from `@Comp
 | `@RestController` | `org.springframework.web.bind.annotation` | RESTful web controller |
 | `@Configuration` | `org.springframework.context.annotation` | Configuration class |
 | `@Bean` | `org.springframework.context.annotation` | Bean definition method |
+
+## @Import Compatibility (v1.2.0+)
+
+AutoScan supports directly importing specific classes in configuration, similar to Spring's `@Import` annotation, providing a more flexible configuration method:
+
+### Configuration Example
+
+```yaml
+auto-scan:
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+    - org.example.config.SecurityConfig
+```
+
+### How It Works
+
+AutoScan directly imports the configured classes into the Spring container, just like using the `@Import` annotation. This is very useful for scenarios where specific configuration classes need to be imported, avoiding the need to use the `@Import` annotation in code.
+
+## Lazy Initialization (v1.2.0+)
+
+AutoScan supports lazy bean initialization, optimizing application startup performance and memory usage:
+
+### Global Lazy Initialization
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # Enable lazy loading for all scanned beans
+```
+
+### Package-Level Lazy Initialization
+
+```yaml
+auto-scan:
+  lazy-packages:
+    - org.example.service  # Enable lazy loading for beans in specific packages
+    - org.example.repository
+```
+
+### Class-Level Lazy Initialization
+
+```yaml
+auto-scan:
+  lazy-classes:
+    - org.example.controller.UserController  # Enable lazy loading for specific classes
+    - org.example.service.OrderService
+```
+
+### Combined Usage
+
+```yaml
+auto-scan:
+  lazy-initialization: true  # Global lazy loading
+  lazy-packages:
+    - org.example.service  # Additional package-level lazy loading
+  lazy-classes:
+    - org.example.controller.UserController  # Additional class-level lazy loading
+```
+
+## Enabled Switch (v1.2.0+)
+
+AutoScan supports completely enabling or disabling the component, providing more flexible control:
+
+### Enable AutoScan
+
+```yaml
+auto-scan:
+  enabled: true  # Enable AutoScan (default value)
+  base-packages:
+    - org.example
+```
+
+### Disable AutoScan
+
+```yaml
+auto-scan:
+  enabled: false  # Disable AutoScan
+  base-packages:
+    - org.example  # Even if packages are configured, no scanning will be performed
+```
+
+### Usage Scenarios
+
+- **Development environment**: Enable AutoScan to enjoy the convenience of automatic scanning
+- **Production environment**: Can disable AutoScan if needed, using manual configuration
+- **Test environment**: Can disable AutoScan, using specific test configurations
+
+## Advanced Filtering (v1.3.0+)
+
+AutoScan supports regex-based package filtering for more flexible scanning control:
+
+### Regex-Based Exclusion
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude all test packages
+    - org\.example\.example\..*  # Exclude all example packages
+    - .*\.temp\..*  # Exclude packages containing "temp"
+```
+
+### Regex-Based Inclusion
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+    - org\.example\.controller\..*  # Include controller packages
+    - .*Service  # Include classes ending with "Service"
+```
+
+### Combined Usage
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude test packages
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+```
+
+## Conditional Configuration (v1.3.0+)
+
+AutoScan supports environment-based scanning configuration, allowing different scanning behavior in different environments:
+
+### Development Environment
+
+```yaml
+spring:
+  profiles:
+    active: dev
+
+auto-scan:
+  base-packages:
+    - org.example.*  # Use wildcard for flexibility
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Component
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+```
+
+### Test Environment
+
+```yaml
+spring:
+  profiles:
+    active: test
+
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+    - org.example.example
+```
+
+### Production Environment
+
+```yaml
+spring:
+  profiles:
+    active: prod
+
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+    - org.example.controller
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude test packages
+    - org\.example\.example\..*  # Exclude example packages
+    - .*\.temp\..*  # Exclude temporary packages
+    - .*\.demo\..*  # Exclude demo packages
+```

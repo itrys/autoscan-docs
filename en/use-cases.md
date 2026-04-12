@@ -351,8 +351,161 @@ auto-scan:
 - View scanning logs
 - Detect issues promptly
 
-### 5. Production Environment
+### 5. **Production Environment**:
 
 - Disable `dev-mode: false`
 - Use wildcards to simplify configuration
 - Exclude unnecessary packages
+- Use regex filtering for more flexible package management (v1.3.0+)
+- Use environment conditional configuration to implement environment-specific scanning (v1.3.0+)
+
+## Scenario 8: Using Regex for Package Filtering (v1.3.0+)
+
+**Positioning**: Use regex for more flexible package filtering, precisely control scanning scope
+
+**Configuration**:
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  # Exclude package regex patterns
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude all test packages
+    - org\.example\.example\..*  # Exclude all example packages
+    - .*\.temp\..*  # Exclude packages containing "temp"
+  # Include package regex patterns
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+    - org\.example\.controller\..*  # Include controller packages
+  dev-mode: true
+```
+
+**Description**: Regex filtering provides more flexible package path matching capabilities, enabling more precise scanning control.
+
+**Applicable Scenarios**:
+- Complex package structures require more precise filtering
+- Need to filter based on package name patterns
+- Exclude or include packages with specific naming patterns
+- Handle dynamically changing package structures
+
+## Scenario 9: Environment-Based Conditional Scanning (v1.3.0+)
+
+**Positioning**: Use different scanning configurations in different environments to optimize performance for each environment
+
+**Development Environment** (`application-dev.yml`):
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.*
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Component
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+```
+
+**Test Environment** (`application-test.yml`):
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+  exclude-packages:
+    - org.example.test
+    - org.example.example
+```
+
+**Production Environment** (`application-prod.yml`):
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+    - org.example.controller
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude test packages
+    - org\.example\.example\..*  # Exclude example packages
+    - .*\.temp\..*  # Exclude temporary packages
+    - .*\.demo\..*  # Exclude demo packages
+```
+
+**Description**: Environment-based conditional scanning leverages Spring Boot's multi-environment configuration mechanism to use different scanning configurations in different environments.
+
+**Applicable Scenarios**:
+- Development environment needs to include more packages for easy debugging
+- Test environment needs to exclude test code
+- Production environment needs to minimize scanning scope for performance
+- Different environments have different scanning needs
+
+## Scenario 10: Combined Use of v1.3.0 New Features
+
+**Positioning**: Fully leverage all new features of v1.3.0, achieve most flexible scanning control
+
+**Configuration**:
+
+```yaml
+auto-scan:
+  # Enable switch
+  enabled: true
+  
+  # Wildcard support
+  base-packages:
+    - org.example.*
+    - com.company.**
+  
+  # Exclude support
+  exclude-packages:
+    - org.example.test
+  exclude-classes:
+    - org.example.demo.DemoClass
+  
+  # Regex filtering (v1.3.0+)
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude all test packages
+    - org\.example\.example\..*  # Exclude all example packages
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+  
+  # Custom annotation support
+  include-annotations:
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.example.annotation.CustomComponent
+  
+  # @Import compatibility
+  imports:
+    - org.example.config.AppConfig
+    - org.example.config.WebConfig
+  
+  # Lazy initialization
+  lazy-initialization: true
+  lazy-packages:
+    - org.example.service
+  lazy-classes:
+    - org.example.controller.UserController
+  
+  # Development mode
+  dev-mode: true
+```
+
+**Description**: The new features of v1.3.0 can be flexibly combined with previous versions' features to achieve very powerful and flexible scanning control.
+
+**Advantages**:
+- Regex filtering provides more flexible package management
+- Environment conditional configuration enables environment-specific scanning
+- Perfect integration with existing features
+- Provides most comprehensive scanning control capabilities

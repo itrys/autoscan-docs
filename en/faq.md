@@ -191,18 +191,14 @@ Or directly remove AutoScan dependency.
 
 **A**: AutoScan's future plans include:
 
-**v1.2.0 Plans**:
-- 📦 @Import Compatibility - Directly import specific classes in configuration
-- ⚡ Lazy Initialization - Support lazy bean initialization
-
-**v1.3.0 Plans**:
-- 🎯 Advanced Filtering - Regex-based package filtering
-- 🔄 Conditional Configuration - Environment-based scanning
-
-**Long-term Vision**:
+**v1.4.0 Plans**:
 - 🔌 Plugin System - Extensible scanning strategies
 - 📊 Monitoring Dashboard - Visual scanning analysis
+
+**Long-term Vision**:
 - 🌐 Spring Cloud Integration - Microservices optimization
+- 🤖 AI-powered Intelligent Scanning - AI-based scanning optimization
+- 📱 Configuration Visualization Tool - Graphical configuration interface
 
 ## Q17: How to create and use custom annotations?
 
@@ -272,3 +268,87 @@ auto-scan:
 ```
 
 This combined configuration can achieve very flexible and precise scanning control.
+
+## Q19: How to use regex for package filtering?
+
+**A**: Starting from v1.3.0, AutoScan supports using regex for package filtering:
+
+**Exclude packages with regex**:
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude all test packages
+    - org\.example\.example\..*  # Exclude all example packages
+    - .*\.temp\..*  # Exclude packages containing "temp"
+```
+
+**Include packages with regex**:
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  include-packages-regex:
+    - org\.example\.boot\..*  # Include boot packages
+    - org\.example\.business\..*  # Include business packages
+    - .*Service  # Include classes ending with "Service"
+```
+
+**Combined usage**:
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  exclude-packages-regex:
+    - org\.example\.test\..*
+  include-packages-regex:
+    - org\.example\.boot\..*
+```
+
+## Q20: How to configure environment-based scanning?
+
+**A**: Starting from v1.3.0, AutoScan supports environment-based scanning configuration, leveraging Spring Boot's multi-environment configuration mechanism:
+
+**Development environment** (`application-dev.yml`):
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.*
+  dev-mode: true
+  include-annotations:
+    - org.springframework.stereotype.Component
+    - org.springframework.stereotype.Service
+    - org.springframework.stereotype.Controller
+    - org.springframework.stereotype.Repository
+```
+
+**Production environment** (`application-prod.yml`):
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example.boot
+    - org.example.business
+  dev-mode: false
+  exclude-packages-regex:
+    - org\.example\.test\..*  # Exclude test packages
+    - org\.example\.example\..*  # Exclude example packages
+```
+
+**Test environment** (`application-test.yml`):
+
+```yaml
+auto-scan:
+  base-packages:
+    - org.example
+  dev-mode: true
+  exclude-packages:
+    - org.example.test
+```
+
+Switch between different environment configurations by setting `spring.profiles.active`.

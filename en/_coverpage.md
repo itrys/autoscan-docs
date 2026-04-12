@@ -1,4 +1,4 @@
-# AutoScan <small>1.1.0</small>
+# AutoScan <small>1.3.0</small>
 
 > Lightweight Spring Boot Starter for Cross-Package Scanning
 
@@ -8,6 +8,17 @@
 - 🔧 Non-invasive design, no changes to existing code structure
 - 📊 Developer-friendly, detailed scanning logs for debugging
 - ⚡ Lightweight, no extra dependencies, fully compatible with Spring Boot 3.x/4.x
+
+**v1.3.0 New Features**
+
+- 🌟 Advanced Filtering - Regex-based package filtering
+- 🔄 Conditional Configuration - Environment-based scanning
+
+**v1.2.0 New Features**
+
+- 📦 @Import Compatibility - Directly import specific classes in configuration
+- ⚡ Lazy Initialization - Support lazy loading of beans for performance optimization
+- 🔧 Enable Switch - Support fully enabling or disabling AutoScan component
 
 **v1.1.0 New Features**
 
